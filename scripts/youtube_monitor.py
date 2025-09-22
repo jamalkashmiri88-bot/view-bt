@@ -6,19 +6,22 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 def get_channel_videos(channel_url, max_videos=10):
-    # Set up headless Chrome
+    # Configure headless Chrome
     options = Options()
     options.headless = True
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
-    # Removed --user-data-dir to prevent session errors in GitHub Actions
+    
+    # Specify Chrome binary path (GitHub Actions runner)
+    options.binary_location = "/usr/bin/google-chrome"  # or "/usr/bin/chromium-browser"
 
+    # Initialize WebDriver
     driver = webdriver.Chrome(options=options)
     driver.get(channel_url)
 
-    # Wait a few seconds for videos to load
+    # Wait for videos to load
     driver.implicitly_wait(5)
 
     videos = []
