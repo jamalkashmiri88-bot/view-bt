@@ -1,0 +1,35 @@
+name: YouTube Channel Monitor
+on:
+  schedule:
+    - cron: '0 3 * * *'   # Runs at 3 AM UTC
+    - cron: '0 15 * * *'  # Runs at 3 PM UTC
+  workflow_dispatch:       # Allows manual triggering
+
+jobs:
+  monitor-channel:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests google-api-python-client
+
+    - name: Run YouTube channel monitor
+      run: python scripts/youtube_monitor.py
+      env:
+        CHANNEL_ID: "UC_x5XG1OV2P6uZZ5FSM9Ttw"  # Example channel ID, replace with actual
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: youtube-monitor-results
+        path: video_results.json
