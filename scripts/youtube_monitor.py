@@ -1,26 +1,30 @@
 import os
 import json
+import tempfile
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from datetime import datetime
 
 def get_channel_videos(channel_url, max_videos=10):
+    # Set up headless Chrome with a unique temporary user data directory
     options = Options()
     options.headless = True
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument(f"--user-data-dir={tempfile.mkdtemp()}")  # unique profile
 
     driver = webdriver.Chrome(options=options)
     driver.get(channel_url)
 
-    # Wait for page to load
+    # Wait a few seconds for videos to load
     driver.implicitly_wait(5)
 
     videos = []
     try:
+        # Grab video elements
         video_elements = driver.find_elements(By.XPATH, '//a[@id="video-title"]')[:max_videos]
         for video in video_elements:
             title = video.get_attribute("title")
@@ -56,7 +60,7 @@ def main():
         print(f"   URL: {v['url']}")
         print(f"   ID: {v['video_id']}\n")
 
-    # Save to JSON
+    # Save results to JSON
     results = {
         "check_time": datetime.now().isoformat(),
         "channel_url": channel_url,
