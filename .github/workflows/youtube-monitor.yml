@@ -2,9 +2,9 @@ name: YouTube Channel Monitor
 
 on:
   schedule:
-    - cron: '0 3 * * *'
-    - cron: '0 15 * * *'
-  workflow_dispatch:
+    - cron: '0 3 * * *'   # 3 AM UTC
+    - cron: '0 15 * * *'  # 3 PM UTC
+  workflow_dispatch:       # Manual trigger
 
 jobs:
   monitor-channel:
@@ -19,20 +19,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache Python dependencies
+      - name: Cache pip
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: Linux-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            Linux-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run YouTube channel monitor
+      - name: Run YouTube monitor
         run: python scripts/youtube_monitor.py
         env:
           CHANNEL_URL: "https://www.youtube.com/@LostAndClassified/videos"
