@@ -1,17 +1,11 @@
 import time
 import json
-import tempfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from datetime import datetime
-import os
 
-# -------------------------------
-# CONFIG
-# -------------------------------
+# --- CONFIG ---
 
-# Paste your video URLs here
 VIDEO_URLS = [
     "https://youtu.be/Xs7A52Hhfas?si=7EUn-D9axTjdzxRa",
     "https://youtu.be/Hp0LYYlaRzg?si=FLG7UJ3Zox7sUODt",
@@ -22,18 +16,11 @@ VIDEO_URLS = [
     "https://youtu.be/mCdYwZ6Wd84?si=keWbmQtQ-nk_1AHE"
 ]
 
-# Number of times to visit each video
-VISITS_PER_VIDEO = 100
+VISITS_PER_VIDEO = 100  # number of visits per video
 
-# Output file
-OUTPUT_FILE = "video_results.json"
+CHROMEDRIVER_PATH = "/usr/bin/chromedriver"  # default path on GitHub Actions runners
 
-# Path to chromedriver (default in GitHub Actions)
-CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
-
-# -------------------------------
-# FUNCTIONS
-# -------------------------------
+# ------------------
 
 def visit_videos(video_urls, visits_per_video=1):
     options = Options()
@@ -43,10 +30,7 @@ def visit_videos(video_urls, visits_per_video=1):
     options.add_argument("--disable-gpu")
     options.add_argument("--log-level=3")
 
-    # Use unique temporary user-data-dir to avoid SessionNotCreatedException
-    temp_dir = tempfile.mkdtemp()
-    options.add_argument(f"--user-data-dir={temp_dir}")
-
+    # Remove --user-data-dir to avoid GitHub Actions session errors
     service = Service(CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -57,7 +41,7 @@ def visit_videos(video_urls, visits_per_video=1):
             print(f"Visiting {url} — visit {visit}/{visits_per_video}")
             try:
                 driver.get(url)
-                time.sleep(1)  # wait for page to load
+                time.sleep(1)  # wait 1 sec to simulate view
                 results.append({"url": url, "visit": visit, "status": "visited"})
             except Exception as e:
                 results.append({"url": url, "visit": visit, "status": f"error: {str(e)}"})
@@ -66,22 +50,20 @@ def visit_videos(video_urls, visits_per_video=1):
     driver.quit()
     return results
 
-def save_results(results, output_file=OUTPUT_FILE):
-    with open(output_file, "w") as f:
-        json.dump(results, f, indent=4)
-    print(f"\n✅ Results saved to {output_file}")
-
-# -------------------------------
-# MAIN
-# -------------------------------
-
 def main():
     print("="*50)
-    print(f"Monitoring YouTube Videos at {datetime.now()}")
+    print("Monitoring YouTube Videos")
+    print(f"Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*50)
-
+    
     results = visit_videos(VIDEO_URLS, VISITS_PER_VIDEO)
-    save_results(results)
+
+    # Save results to JSON
+    with open("video_results.json", "w") as f:
+        json.dump(results, f, indent=4)
+
+    print(f"\n✅ Finished! Results saved to video_results.json")
+    print(f"Total visits: {len(results)}")
 
 if __name__ == "__main__":
     main()
