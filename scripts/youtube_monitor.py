@@ -3,7 +3,9 @@ import json
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
 def get_channel_videos(channel_url, max_videos=10):
     # Configure headless Chrome
@@ -13,12 +15,10 @@ def get_channel_videos(channel_url, max_videos=10):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
-    
-    # Specify Chrome binary path (GitHub Actions runner)
-    options.binary_location = "/usr/bin/google-chrome"  # or "/usr/bin/chromium-browser"
 
-    # Initialize WebDriver
-    driver = webdriver.Chrome(options=options)
+    # Initialize Chrome WebDriver using webdriver-manager
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get(channel_url)
 
     # Wait for videos to load
