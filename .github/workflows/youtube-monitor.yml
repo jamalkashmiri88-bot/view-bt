@@ -26,7 +26,7 @@ jobs:
     - name: Run YouTube channel monitor
       run: python scripts/youtube_monitor.py
       env:
-        CHANNEL_URL: "https://www.youtube.com/@LostAndClassified"
+        CHANNEL_URL: "https://www.youtube.com/@LostAndClassified/videos"
 
     - name: Upload results
       uses: actions/upload-artifact@v4
