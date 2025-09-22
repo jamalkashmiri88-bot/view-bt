@@ -3,13 +3,13 @@ import json
 import time
 
 VIDEO_URLS = [
-    "https://youtu.be/watch?v=Xs7A52Hhfas",
-    "https://youtu.be/watch?v=Hp0LYYlaRzg",
-    "https://youtu.be/watch?v=dIr50nmaWoQ",
-    "https://youtu.be/watch?v=WP5x48jp7yM",
-    "https://youtu.be/watch?v=gooqrZUhn5A",
-    "https://youtu.be/watch?v=E1_7WLbg1wk",
-    "https://youtu.be/watch?v=mCdYwZ6Wd84"
+    "https://youtu.be/Xs7A52Hhfas",
+    "https://youtu.be/Hp0LYYlaRzg",
+    "https://youtu.be/dIr50nmaWoQ",
+    "https://youtu.be/WP5x48jp7yM",
+    "https://youtu.be/gooqrZUhn5A",
+    "https://youtu.be/E1_7WLbg1wk",
+    "https://youtu.be/mCdYwZ6Wd84"
 ]
 
 VISITS_PER_VIDEO = 100
