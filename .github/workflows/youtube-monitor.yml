@@ -4,7 +4,41 @@ on:
   schedule:
     - cron: '0 3 * * *'   # 3 AM UTC
     - cron: '0 15 * * *'  # 3 PM UTC
+  workflow_dispatch:       # Manual triggername: YouTube Channel Monitor
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 3 AM UTC
+    - cron: '0 15 * * *'  # 3 PM UTC
   workflow_dispatch:       # Manual trigger
+
+jobs:
+  monitor-channel:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies (only once)
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium
+
+    - name: Run YouTube channel monitor
+      run: python scripts/youtube_monitor.py
+
+    - name: Upload results
+      uses: actions/upload-artifact@v4
+      with:
+        name: youtube-monitor-results
+        path: video_results.json
+
 
 jobs:
   monitor-channel:
