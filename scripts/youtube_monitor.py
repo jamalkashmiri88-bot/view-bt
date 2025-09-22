@@ -1,12 +1,17 @@
-import os
+import time
 import json
+import tempfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
-import time
+import os
 
-# List of video URLs
+# -------------------------------
+# CONFIG
+# -------------------------------
+
+# Paste your video URLs here
 VIDEO_URLS = [
     "https://youtu.be/Xs7A52Hhfas?si=7EUn-D9axTjdzxRa",
     "https://youtu.be/Hp0LYYlaRzg?si=FLG7UJ3Zox7sUODt",
@@ -17,7 +22,18 @@ VIDEO_URLS = [
     "https://youtu.be/mCdYwZ6Wd84?si=keWbmQtQ-nk_1AHE"
 ]
 
-VISITS_PER_VIDEO = 100  # simulate 100 visits per video
+# Number of times to visit each video
+VISITS_PER_VIDEO = 100
+
+# Output file
+OUTPUT_FILE = "video_results.json"
+
+# Path to chromedriver (default in GitHub Actions)
+CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
+
+# -------------------------------
+# FUNCTIONS
+# -------------------------------
 
 def visit_videos(video_urls, visits_per_video=1):
     options = Options()
@@ -27,7 +43,11 @@ def visit_videos(video_urls, visits_per_video=1):
     options.add_argument("--disable-gpu")
     options.add_argument("--log-level=3")
 
-    service = Service("/usr/bin/chromedriver")
+    # Use unique temporary user-data-dir to avoid SessionNotCreatedException
+    temp_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={temp_dir}")
+
+    service = Service(CHROMEDRIVER_PATH)
     driver = webdriver.Chrome(service=service, options=options)
 
     results = []
@@ -46,19 +66,22 @@ def visit_videos(video_urls, visits_per_video=1):
     driver.quit()
     return results
 
+def save_results(results, output_file=OUTPUT_FILE):
+    with open(output_file, "w") as f:
+        json.dump(results, f, indent=4)
+    print(f"\n✅ Results saved to {output_file}")
+
+# -------------------------------
+# MAIN
+# -------------------------------
+
 def main():
     print("="*50)
-    print(f"Monitoring YouTube Videos at {datetime.utcnow()}")
+    print(f"Monitoring YouTube Videos at {datetime.now()}")
     print("="*50)
 
     results = visit_videos(VIDEO_URLS, VISITS_PER_VIDEO)
-
-    # Save results
-    output_file = "video_results.json"
-    with open(output_file, "w") as f:
-        json.dump(results, f, indent=2)
-
-    print(f"\nResults saved to {output_file}")
+    save_results(results)
 
 if __name__ == "__main__":
     main()
