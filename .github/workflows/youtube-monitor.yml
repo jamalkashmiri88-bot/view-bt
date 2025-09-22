@@ -1,0 +1,35 @@
+name: YouTube Channel Monitor
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # Runs at 3 AM UTC daily
+    - cron: '0 15 * * *'  # Runs at 3 PM UTC daily
+  workflow_dispatch:       # Allows manual triggering
+
+jobs:
+  monitor-channel:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
+
+    - name: Run YouTube channel monitor
+      run: python scripts/youtube_monitor.py
+      env:
+        CHANNEL_URL: "https://www.youtube.com/@LostAndClassified"
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: youtube-monitor-results
+        path: video_results.json
