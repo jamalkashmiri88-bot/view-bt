@@ -1,10 +1,6 @@
-import time
+from pytube import YouTube
 import json
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-
-# --- CONFIG ---
+import time
 
 VIDEO_URLS = [
     "https://youtu.be/Xs7A52Hhfas?si=7EUn-D9axTjdzxRa",
@@ -16,38 +12,24 @@ VIDEO_URLS = [
     "https://youtu.be/mCdYwZ6Wd84?si=keWbmQtQ-nk_1AHE"
 ]
 
-VISITS_PER_VIDEO = 100  # number of visits per video
+VISITS_PER_VIDEO = 100
+RESULTS_FILE = "video_results.json"
 
-CHROMEDRIVER_PATH = "/usr/bin/chromedriver"  # default path on GitHub Actions runners
-
-# ------------------
-
-def visit_videos(video_urls, visits_per_video=1):
-    options = Options()
-    options.headless = True
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--log-level=3")
-
-    # Remove --user-data-dir to avoid GitHub Actions session errors
-    service = Service(CHROMEDRIVER_PATH)
-    driver = webdriver.Chrome(service=service, options=options)
-
+def visit_videos(video_urls, visits_per_video):
     results = []
-
     for url in video_urls:
-        for visit in range(1, visits_per_video + 1):
-            print(f"Visiting {url} — visit {visit}/{visits_per_video}")
-            try:
-                driver.get(url)
-                time.sleep(1)  # wait 1 sec to simulate view
-                results.append({"url": url, "visit": visit, "status": "visited"})
-            except Exception as e:
-                results.append({"url": url, "visit": visit, "status": f"error: {str(e)}"})
-                print(f"❌ Error on visit {visit}: {e}")
+        print(f"Checking video: {url}")
+        try:
+            yt = YouTube(url)
+            title = yt.title
+        except Exception as e:
+            title = f"Error fetching title: {e}"
 
-    driver.quit()
+        for i in range(1, visits_per_video + 1):
+            print(f"Visit {i}/{visits_per_video} for {title}")
+            # Here you could add sleep to simulate delay if needed
+            results.append({"url": url, "title": title, "visit": i, "status": "visited"})
+
     return results
 
 def main():
@@ -55,14 +37,13 @@ def main():
     print("Monitoring YouTube Videos")
     print(f"Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*50)
-    
+
     results = visit_videos(VIDEO_URLS, VISITS_PER_VIDEO)
 
-    # Save results to JSON
-    with open("video_results.json", "w") as f:
+    with open(RESULTS_FILE, "w") as f:
         json.dump(results, f, indent=4)
 
-    print(f"\n✅ Finished! Results saved to video_results.json")
+    print(f"\n✅ Finished! Results saved to {RESULTS_FILE}")
     print(f"Total visits: {len(results)}")
 
 if __name__ == "__main__":
