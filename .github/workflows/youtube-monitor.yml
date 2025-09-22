@@ -1,34 +1,31 @@
-name: YouTube Channel Monitor
+import json
+from datetime import datetime
 
-on:
-  schedule:
-    - cron: '0 3 * * *'   # 3 AM UTC
-    - cron: '0 15 * * *'  # 3 PM UTC
-  workflow_dispatch:       # Manual trigger
+# List of direct YouTube video URLs
+video_urls = [
+    "https://youtu.be/Xs7A52Hhfas?si=7EUn-D9axTjdzxRa",
+    "https://youtu.be/Hp0LYYlaRzg?si=FLG7UJ3Zox7sUODt",
+    "https://youtu.be/dIr50nmaWoQ?si=hlWwNkDklY2FsZj-",
+    "https://youtu.be/WP5x48jp7yM?si=xmZpv_YIg93EPhfI",
+    "https://youtu.be/gooqrZUhn5A?si=6k9PZeL0fTK6bwVn",
+    "https://youtu.be/E1_7WLbg1wk?si=LiSRVBkz37uRcZZ2",
+    "https://youtu.be/mCdYwZ6Wd84?si=keWbmQtQ-nk_1AHE"
+]
 
-jobs:
-  monitor-channel:
-    runs-on: ubuntu-latest
+def main():
+    print("="*50)
+    print(f"Monitoring {len(video_urls)} YouTube videos")
+    print(f"Time: {datetime.now()}")
+    print("="*50)
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    if video_urls:
+        print(f"Found {len(video_urls)} videos.")
+        # Save to JSON
+        with open("video_results.json", "w") as f:
+            json.dump(video_urls, f, indent=4)
+        print("Saved video URLs to video_results.json")
+    else:
+        print("No videos found.")
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies (only once)
-      run: |
-        python -m pip install --upgrade pip
-        pip install selenium
-
-    - name: Run YouTube channel monitor
-      run: python scripts/youtube_monitor.py
-
-    - name: Upload results
-      uses: actions/upload-artifact@v4
-      with:
-        name: youtube-monitor-results
-        path: video_results.json
+if __name__ == "__main__":
+    main()
